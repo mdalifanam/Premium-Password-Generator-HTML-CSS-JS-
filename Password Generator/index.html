@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>LuminaPass | Premium Password Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at 20% 30%, #0B1120, #03050B);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+      padding: 1.5rem;
+    }
+
+    /* modern card – glassmorphism + soft blur */
+    .app-card {
+      max-width: 460px;
+      width: 100%;
+      background: rgba(12, 20, 35, 0.65);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 44px;
+      padding: 1.8rem 1.5rem 2.2rem;
+      box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(120, 140, 200, 0.15);
+      transition: transform 0.2s ease;
+      border: 1px solid rgba(80, 120, 220, 0.2);
+    }
+
+    /* title area */
+    .title-section {
+      margin-bottom: 1.8rem;
+      text-align: left;
+    }
+    .app-title {
+      font-size: 1.9rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #E0E7FF, #A5B4FC);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: -0.3px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sub {
+      font-size: 0.8rem;
+      color: #9AA9C7;
+      margin-top: 6px;
+      font-weight: 450;
+      letter-spacing: 0.2px;
+    }
+
+    /* password display row */
+    .password-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.45);
+      border-radius: 28px;
+      padding: 6px 6px 6px 20px;
+      margin-bottom: 1.8rem;
+      border: 1px solid rgba(110, 150, 255, 0.4);
+      box-shadow: 0 0 12px rgba(0, 255, 255, 0.1);
+      transition: all 0.2s;
+    }
+    .password-area:focus-within {
+      box-shadow: 0 0 18px rgba(0, 210, 255, 0.4);
+      border-color: #6CC9FF;
+    }
+    .password-display {
+      flex: 1;
+      background: transparent;
+      border: none;
+      font-size: 1.2rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-weight: 500;
+      color: #F1F5F9;
+      letter-spacing: 0.5px;
+      word-break: break-all;
+      outline: none;
+      padding: 12px 0;
+    }
+    .copy-btn {
+      background: rgba(20, 40, 70, 0.7);
+      border: none;
+      width: 46px;
+      height: 46px;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(100, 150, 250, 0.4);
+    }
+    .copy-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: #B9D0FF;
+      stroke-width: 1.7;
+      fill: none;
+      transition: stroke 0.2s;
+    }
+    .copy-btn:hover {
+      background: rgba(70, 120, 220, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(0, 160, 255, 0.3);
+      border-color: #3B82F6;
+    }
+    .copy-btn:active {
+      transform: scale(0.92);
+    }
+    .copy-btn:hover svg {
+      stroke: #EFF6FF;
+    }
+
+    /* controls layout */
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    /* length slider */
+    .length-control {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 28px;
+      padding: 0.8rem 1rem;
+    }
+    .length-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #C7D4FF;
+      margin-bottom: 12px;
+      letter-spacing: 0.3px;
+    }
+    .length-value {
+      background: #0A1122;
+      padding: 2px 10px;
+      border-radius: 40px;
+      font-family: monospace;
+      font-weight: 600;
+      color: #93C5FD;
+    }
+    input[type="range"] {
+      width: 100%;
+      height: 5px;
+      -webkit-appearance: none;
+      background: linear-gradient(90deg, #4F46E5, #06B6D4);
+      border-radius: 10px;
+      outline: none;
+    }
+    input[type="range"]:focus {
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 10px #38BDF8;
+      border: 2px solid #A5F3FC;
+      transition: 0.1s;
+    }
+    input[type="range"]::-webkit-slider-thumb:active {
+      transform: scale(1.2);
+      background: #C084FC;
+    }
+
+    /* custom checkboxes grid */
+    .check-group {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem 1rem;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 0.7rem 1rem;
+      border-radius: 32px;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #E2E8FF;
+      transition: 0.1s;
+    }
+    .checkbox-label input {
+      display: none;
+    }
+    .custom-check {
+      width: 20px;
+      height: 20px;
+      background: rgba(20, 30, 55, 0.8);
+      border-radius: 8px;
+      display: inline-block;
+      position: relative;
+      border: 1.5px solid #5A72B0;
+      transition: all 0.2s;
+    }
+    .checkbox-label input:checked + .custom-check {
+      background: linear-gradient(145deg, #4F46E5, #3B82F6);
+      border-color: #A5F3FC;
+      box-shadow: 0 0 6px #3B82F6;
+    }
+    .checkbox-label input:checked + .custom-check::after {
+      content: "✓";
+      position: absolute;
+      color: white;
+      font-size: 13px;
+      font-weight: bold;
+      left: 4px;
+      top: -1px;
+    }
+    .checkbox-label:hover .custom-check {
+      border-color: #80B3FF;
+      transform: scale(1.02);
+    }
+
+    /* generate button */
+    .gen-btn {
+      width: 100%;
+      background: linear-gradient(105deg, #4F46E5, #6366F1);
+      border: none;
+      padding: 1rem 0;
+      border-radius: 60px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: white;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 12px 20px -12px rgba(79, 70, 229, 0.5);
+      margin-top: 0.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .gen-btn:active {
+      transform: scale(0.96);
+      box-shadow: 0 6px 12px -6px #4338CA;
+    }
+    .gen-btn:hover {
+      background: linear-gradient(105deg, #6366F1, #8B5CF6);
+      transform: translateY(-2px);
+      box-shadow: 0 20px 25px -12px #4F46E5;
+    }
+
+    /* strength indicator */
+    .strength-area {
+      margin-top: 1.6rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 50px;
+      padding: 0.7rem 1.2rem;
+    }
+    .strength-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #9BB2E0;
+      letter-spacing: 0.3px;
+    }
+    .strength-value {
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 4px 14px;
+      border-radius: 40px;
+      transition: all 0.2s;
+    }
+    .weak {
+      background: rgba(239, 68, 68, 0.2);
+      color: #FF8A8A;
+      box-shadow: 0 0 5px #EF4444;
+      text-shadow: 0 0 2px rgba(255,0,0,0.2);
+    }
+    .medium {
+      background: rgba(245, 158, 11, 0.2);
+      color: #FBBF24;
+      box-shadow: 0 0 5px #F59E0B;
+    }
+    .strong {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ADE80;
+      box-shadow: 0 0 8px #22C55E;
+      text-shadow: 0 0 1px #2EF0A0;
+    }
+
+    /* copied toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) scale(0.9);
+      background: rgba(30, 40, 70, 0.9);
+      backdrop-filter: blur(12px);
+      padding: 8px 20px;
+      border-radius: 60px;
+      color: #BEF264;
+      font-weight: 500;
+      font-size: 0.9rem;
+      border: 1px solid #60A5FA;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+      z-index: 200;
+      font-family: monospace;
+      letter-spacing: 0.5px;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+    }
+
+    /* responsiveness */
+    @media (max-width: 480px) {
+      .app-card {
+        padding: 1.4rem 1.2rem 1.8rem;
+        border-radius: 36px;
+      }
+      .password-display {
+        font-size: 1rem;
+      }
+      .check-group {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+      }
+      .app-title {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-card">
+  <div class="title-section">
+    <div class="app-title">
+      ✦ LuminaPass
+    </div>
+    <div class="sub">secure • elegant • strong</div>
+  </div>
+
+  <!-- password field -->
+  <div class="password-area">
+    <div class="password-display" id="passwordField" aria-label="Generated password">P@ssw0rd!23</div>
+    <button class="copy-btn" id="copyBtn" aria-label="Copy password">
+      <svg viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+    </button>
+  </div>
+
+  <div class="controls">
+    <!-- length slider modern -->
+    <div class="length-control">
+      <div class="length-header">
+        <span>🔐 PASSWORD LENGTH</span>
+        <span class="length-value" id="lengthValue">12</span>
+      </div>
+      <input type="range" id="lengthSlider" min="4" max="32" value="12" step="1">
+    </div>
+
+    <!-- custom styled checkboxes -->
+    <div class="check-group">
+      <label class="checkbox-label">
+        <input type="checkbox" id="uppercaseCheck" checked>
+        <span class="custom-check"></span>
+        <span>A-Z</span>
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="lowercaseCheck" checked>
+        <span class="custom-check"></span>
+        <span>a-z</span>
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="numbersCheck" checked>
+        <span class="custom-check"></span>
+        <span>0-9</span>
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="symbolsCheck" checked>
+        <span class="custom-check"></span>
+        <span>!@#$%</span>
+      </label>
+    </div>
+
+    <button class="gen-btn" id="generateBtn">
+      ✨ GENERATE NEW
+    </button>
+  </div>
+
+  <!-- strength indicator -->
+  <div class="strength-area">
+    <span class="strength-label">PASSWORD STRENGTH</span>
+    <span class="strength-value" id="strengthBadge">MEDIUM</span>
+  </div>
+</div>
+
+<div id="copyToast" class="copy-toast">✓ Copied to clipboard</div>
+
+<script>
+  (function() {
+    // ---------- DOM elements ----------
+    const passwordDisplay = document.getElementById('passwordField');
+    const copyBtn = document.getElementById('copyBtn');
+    const lengthSlider = document.getElementById('lengthSlider');
+    const lengthValueSpan = document.getElementById('lengthValue');
+    const uppercaseChk = document.getElementById('uppercaseCheck');
+    const lowercaseChk = document.getElementById('lowercaseCheck');
+    const numbersChk = document.getElementById('numbersCheck');
+    const symbolsChk = document.getElementById('symbolsCheck');
+    const generateBtn = document.getElementById('generateBtn');
+    const strengthBadge = document.getElementById('strengthBadge');
+
+    // character pools
+    const UPPER = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+    const LOWER = "abcdefghijkmnopqrstuvwxyz";
+    const NUMBERS = "0123456789";
+    const SYMBOLS = "!@#$%^&*()_+~`|}{[]:;?><,./-=";
+
+    // helper: random element from string
+    function getRandomChar(str) {
+      const randomIndex = Math.floor(Math.random() * str.length);
+      return str[randomIndex];
+    }
+
+    // Fisher-Yates shuffle
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // core password generator (ensures at least one char from each selected type)
+    function generatePassword(length, useUpper, useLower, useNumbers, useSymbols) {
+      // fallback if nothing selected -> at least lowercase
+      if (!useUpper && !useLower && !useNumbers && !useSymbols) {
+        useLower = true;
+      }
+
+      let selectedPools = [];
+      let mandatoryChars = [];
+
+      if (useUpper) {
+        selectedPools.push(UPPER);
+        mandatoryChars.push(getRandomChar(UPPER));
+      }
+      if (useLower) {
+        selectedPools.push(LOWER);
+        mandatoryChars.push(getRandomChar(LOWER));
+      }
+      if (useNumbers) {
+        selectedPools.push(NUMBERS);
+        mandatoryChars.push(getRandomChar(NUMBERS));
+      }
+      if (useSymbols) {
+        selectedPools.push(SYMBOLS);
+        mandatoryChars.push(getRandomChar(SYMBOLS));
+      }
+
+      const combinedPool = selectedPools.join('');
+      
+      // if length is less than mandatory chars (can happen if min length 4 and all 4 selected, length == 4 => exact)
+      let finalChars = [...mandatoryChars];
+      const remainingNeeded = length - mandatoryChars.length;
+      
+      for (let i = 0; i < remainingNeeded; i++) {
+        const randomPoolChar = getRandomChar(combinedPool);
+        finalChars.push(randomPoolChar);
+      }
+      
+      // shuffle final array for randomness
+      const shuffledPassword = shuffleArray(finalChars).join('');
+      // Edge case: if length > 0 and something weird, but should be exact
+      return shuffledPassword.slice(0, length);
+    }
+
+    // evaluate strength based on actual password content
+    function evaluateStrength(password) {
+      let categories = 0;
+      if (/[A-Z]/.test(password)) categories++;
+      if (/[a-z]/.test(password)) categories++;
+      if (/[0-9]/.test(password)) categories++;
+      if (/[^A-Za-z0-9]/.test(password)) categories++;
+      const len = password.length;
+      
+      if (len >= 12 && categories >= 3) return 'strong';
+      if (len >= 8 && categories >= 2) return 'medium';
+      return 'weak';
+    }
+
+    // update strength UI with glow & colors
+    function updateStrengthUI(password) {
+      const strength = evaluateStrength(password);
+      let text = '', className = '';
+      if (strength === 'weak') {
+        text = 'WEAK';
+        className = 'weak';
+      } else if (strength === 'medium') {
+        text = 'MEDIUM';
+        className = 'medium';
+      } else {
+        text = 'STRONG';
+        className = 'strong';
+      }
+      strengthBadge.innerText = text;
+      strengthBadge.className = `strength-value ${className}`;
+    }
+
+    // main refresh: generate password based on current settings & update UI
+    function refreshPassword() {
+      const length = parseInt(lengthSlider.value, 10);
+      const useUpper = uppercaseChk.checked;
+      const useLower = lowercaseChk.checked;
+      const useNumbers = numbersChk.checked;
+      const useSymbols = symbolsChk.checked;
+      
+      let newPassword = generatePassword(length, useUpper, useLower, useNumbers, useSymbols);
+      // final safety: if by any rare case password length mismatched due to shuffling, trim
+      if (newPassword.length > length) newPassword = newPassword.slice(0, length);
+      else if (newPassword.length < length) {
+        // fallback filler: add random from combined
+        let fallbackPool = '';
+        if (useUpper) fallbackPool += UPPER;
+        if (useLower) fallbackPool += LOWER;
+        if (useNumbers) fallbackPool += NUMBERS;
+        if (useSymbols) fallbackPool += SYMBOLS;
+        if (!fallbackPool) fallbackPool = LOWER;
+        while (newPassword.length < length) {
+          newPassword += getRandomChar(fallbackPool);
+        }
+      }
+      passwordDisplay.innerText = newPassword;
+      updateStrengthUI(newPassword);
+      return newPassword;
+    }
+
+    // copy to clipboard + toast animation
+    function copyToClipboard() {
+      const password = passwordDisplay.innerText;
+      if (!password) return;
+      navigator.clipboard.writeText(password).then(() => {
+        showCopyToast();
+      }).catch(() => {
+        // fallback for older contexts
+        const textarea = document.createElement('textarea');
+        textarea.value = password;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showCopyToast();
+      });
+    }
+
+    let toastTimeout = null;
+    function showCopyToast() {
+      const toast = document.getElementById('copyToast');
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toast.classList.add('show');
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 1800);
+    }
+
+    // update slider numeric display
+    function updateSliderValue() {
+      const val = lengthSlider.value;
+      lengthValueSpan.innerText = val;
+    }
+
+    // interactive + generate new on slider change? we follow spec: generate button only.
+    // but if needed we also allow manual generate on button click.
+    // optional: if user wants same generation only via button, it's perfect.
+    // However also initial generation + every generate click.
+    
+    // adding click animation & event handlers
+    generateBtn.addEventListener('click', (e) => {
+      // generate fresh password
+      refreshPassword();
+      // micro interaction: button ripple feeling via active class (CSS already has active scale)
+    });
+    
+    copyBtn.addEventListener('click', (e) => {
+      copyToClipboard();
+    });
+    
+    lengthSlider.addEventListener('input', () => {
+      updateSliderValue();
+      // Optional: live preview of length but we won't regenerate automatically - keep clean.
+      // To make UI smooth we just show new length number, no generation until click.
+    });
+    
+    // also to maintain consistency: if any checkbox changes we only generate on button click (app-like manual)
+    // But for a modern feel, we could add a "tap generate" – it's already there.
+    
+    // initial load: generate default strong password and update everything
+    function init() {
+      updateSliderValue();
+      // default all checkboxes on -> generate
+      refreshPassword();
+    }
+    
+    // minor: edge case if user clicks generate with all unchecked: our generator will default to lowercase.
+    // also ensure that password strength respects after copy, no need.
+    init();
+
+    // optional additional polish: when generate or strength update, the password box can have glow effect.
+    // Add on password generate subtle border flash? already has border, but we can add a micro class, not mandatory but nice
+    function animatePasswordGlow() {
+      const passArea = document.querySelector('.password-area');
+      passArea.style.transition = 'box-shadow 0.1s';
+      passArea.style.boxShadow = '0 0 0 2px #3b82f6, 0 0 18px #38bdf8';
+      setTimeout(() => {
+        passArea.style.boxShadow = '0 0 12px rgba(0, 255, 255, 0.1)';
+      }, 300);
+    }
+    // override refreshPassword to add glow
+    const originalRefresh = refreshPassword;
+    window.refreshPassword = refreshPassword;
+    refreshPassword = function() {
+      const pwd = originalRefresh();
+      animatePasswordGlow();
+      return pwd;
+    }.bind(this);
+    // rebind event handlers so the generate calls new version
+    // replace method safely
+    const newGenFunc = () => {
+      refreshPassword();
+    };
+    generateBtn.removeEventListener('click', refreshPassword);
+    generateBtn.addEventListener('click', newGenFunc);
+    // re-init after overriding
+    refreshPassword();
+    // Also update global reference for copy
+    passwordDisplay.innerText = refreshPassword();
+    updateStrengthUI(passwordDisplay.innerText);
+    // final sync length display & manual trigger of initial
+    updateSliderValue();
+  })();
+</script>
+</body>
+</html>
